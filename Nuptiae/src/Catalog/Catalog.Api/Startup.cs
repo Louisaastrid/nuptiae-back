@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 using Catalog.Api.Models;
 using Microsoft.AspNetCore.Builder;
@@ -11,6 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
 
 namespace Catalog.Api
 {
@@ -30,6 +33,25 @@ namespace Catalog.Api
             services.AddControllers();
             services.AddCors(options => options.AddDefaultPolicy(
                 builder => builder.WithOrigins("http://localhost:3000")));
+
+            services.AddSwaggerGen(
+                c =>
+                {
+                    c.SwaggerDoc("V1", new OpenApiInfo
+                    {
+                        Title = "CatalogApi",
+                        Version = "V1"
+                    });
+                    c.IncludeXmlComments(Path.Combine(
+                        AppContext.BaseDirectory,
+                        $"{Assembly.GetExecutingAssembly().GetName().Name}.xml"
+                        ));
+
+                }
+
+
+                );
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -39,6 +61,13 @@ namespace Catalog.Api
             {
                 app.UseDeveloperExceptionPage();
             }
+            app.UseSwagger();
+            app.UseSwaggerUI(
+                c =>
+                {
+                    c.SwaggerEndpoint("/swagger/V1/swagger.json", "CatalogApi V1");
+                }
+             );
 
             app.UseHttpsRedirection();
 

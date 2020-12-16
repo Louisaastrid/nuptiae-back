@@ -23,7 +23,7 @@ namespace Catalog.API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         /// <summary>
-        /// Get a paginated list oof the catalog destinations
+        /// Get a paginated list of the catalog destinations
         /// </summary>
         /// <param name="pageNum"> Page Num</param>
         /// <param name="pageSize">Page Size </param>
