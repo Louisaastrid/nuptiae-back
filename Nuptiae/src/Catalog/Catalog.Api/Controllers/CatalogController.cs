@@ -65,5 +65,25 @@ namespace Catalog.API.Controllers
             }
 
         }
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        /// <summary>
+        /// delete the specified destination from his Id 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>" "</returns>
+        /// <response code="200">Catalog Item with the given ID found</response>
+        /// <response code="204">Success no content</response>
+        /// <response code="404">No catalog item with the given ID found</response>
+        [HttpDelete("travel/{id:int}")]
+        public ActionResult Delete(int id)
+        {
+            CatalogTravel result = _repo.GetTravelById(id);
+            if (result == null)
+                return NotFound("unKnow travel");
+            else
+                return NoContent(); 
+        }
     }
 }

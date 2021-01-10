@@ -4,5 +4,20 @@
         <name>Catalog.Api</name>
     </assembly>
     <members>
+        <member name="M:Catalog.Api.Models.ICatalogRepo.GetTravel(System.Int32,System.Int32)">
+            <summary>
+            Get travels information
+            </summary>
+            <param name="pageSize"></param>
+            <param name="pageNum"></param>
+            <returns>All travels</returns>
+        </member>
+        <member name="M:Catalog.Api.Models.ICatalogRepo.GetTravelById(System.Int32)">
+            <summary>
+            Get travels by id 
+            </summary>
+            <param name="id"></param>
+            <returns>one travels</returns>
+        </member>
     </members>
 </doc>

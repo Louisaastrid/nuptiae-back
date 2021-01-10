@@ -65,7 +65,7 @@ namespace Catalog.Api
             app.UseSwaggerUI(
                 c =>
                 {
-                    c.SwaggerEndpoint("/swagger/V1/swagger.json", "CatalogApi V1");
+                    c.SwaggerEndpoint("/swagger/V1/swagger.json", "CatalogApi  V1");
                 }
              );
 
