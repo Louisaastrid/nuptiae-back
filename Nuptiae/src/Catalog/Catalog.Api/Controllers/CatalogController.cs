@@ -15,11 +15,10 @@ namespace Catalog.API.Controllers
         private readonly ILogger<CatalogController> _logger;
         private readonly ICatalogRepo _repo;
 
-        //public CatalogController ():this(new ICatalogRepo(),new ILogger<CatalogController>) { }
         public CatalogController(ICatalogRepo repo, ILogger<CatalogController> logger)
         {
-            _logger = logger;
-            _repo = repo;
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            _repo = repo ?? throw new ArgumentNullException(nameof(repo));
         }
 
         /// <summary>
@@ -55,7 +54,7 @@ namespace Catalog.API.Controllers
         [HttpGet("travel/{id:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<CatalogTravel>> Get(int id)
+        public async Task<ActionResult<CatalogTravel>> GetTravelId(int id)
         {
             var result = await _repo.GetTravelById(id);
             if (result == null)
@@ -80,7 +79,7 @@ namespace Catalog.API.Controllers
         [HttpGet("travel/{search}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<CatalogTravel>> Get(string search)
+        public async Task<ActionResult<CatalogTravel>> GetTravelSearsh(string search)
         {
             var result = await _repo.FindTravelByCountry(search);
             if (result == null)
@@ -103,7 +102,7 @@ namespace Catalog.API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult> Delete([FromRoute] int id)
+        public async Task<ActionResult> DeleteTrvaleById ([FromRoute] int id)
         {
             CatalogTravel result = await _repo.GetTravelById(id);
             if (result == null)
@@ -124,7 +123,7 @@ namespace Catalog.API.Controllers
         [HttpGet("trip/{search:regex(^[[a-zA-Z]])}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<IEnumerable<CatalogTravel>>> Get([FromQuery] string search, [FromQuery] int pageNum = 0, [FromQuery] int pageSize = 10)
+        public async Task<ActionResult<IEnumerable<CatalogTravel>>> GetTravelBySearchAsync([FromQuery] string search, [FromQuery] int pageNum = 0, [FromQuery] int pageSize = 10)
         {
             try
             {
