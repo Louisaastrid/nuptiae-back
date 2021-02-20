@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Threading.Tasks;
 using Dapper;
 
@@ -13,7 +14,8 @@ namespace Catalog.Api.Models
     public class CatalogRepo : ICatalogRepo
     {
         private readonly Func<SqlConnection> _getDb;
-        private readonly Dictionary<int, CatalogTravel> _travelsCache = null;
+        private Dictionary<int, CatalogTravel> _travelsCache = null;
+        private readonly bool _useCache;
 
         // TODO: comme j'ai enlevé le ".*", il manque peut être des colonnes (à spécifier explicitement)
         private const string _selectQuery = @"SELECT
@@ -32,73 +34,199 @@ namespace Catalog.Api.Models
         /// Ctor.
         /// </summary>
         /// <param name="getDb">A delegate to get the SQL connection.</param>
+        /// <param name="useCache">Indicates if cache should be used.</param>
         /// <exception cref="ArgumentNullException"><paramref name="getDb"/> is <c>Null</c>.</exception>
-        public CatalogRepo(Func<SqlConnection> getDb)
+        public CatalogRepo(Func<SqlConnection> getDb, bool useCache)
         {
             _getDb = getDb ?? throw new ArgumentNullException(nameof(getDb));
+            _useCache = useCache;
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<CatalogTravel>> GetTravel(int pageSize, int pageNum)
+        public async Task<IReadOnlyCollection<CatalogTravel>> GetTravelAsync(int pageSize, int pageNum)
         {
             CheckPaginationParameters(pageSize, pageNum);
-            using var db = _getDb();
-            return await db.QueryAsync<CatalogTravel>(
-                $"{_selectQuery} ORDER BY Noces.id_noces OFFSET @PageNum * @PageSize ROWS FETCH NEXT @PageSize ROWS ONLY",
-                new
+
+            if (_useCache)
+            {
+                if (_travelsCache == null)
                 {
-                    PageNum = pageNum,
-                    PageSize = pageSize
-                });
+                    using var db = _getDb();
+                    var results = await db
+                        .QueryAsync<CatalogTravel>($"{_selectQuery}")
+                        .ConfigureAwait(false);
+
+                    _travelsCache = results?.ToDictionary(_ => _.Id.Value, _ => _)
+                        ?? new Dictionary<int, CatalogTravel>();
+                }
+
+                return _travelsCache.Values
+                    .Skip(pageNum * pageSize)
+                    .Take(pageSize)
+                    .ToList();
+            }
+            else
+            {
+                using var db = _getDb();
+                var results = await db
+                    .QueryAsync<CatalogTravel>(
+                        $"{_selectQuery} ORDER BY Noces.id_noces OFFSET @PageNum * @PageSize ROWS FETCH NEXT @PageSize ROWS ONLY",
+                        new
+                        {
+                            PageNum = pageNum,
+                            PageSize = pageSize
+                        })
+                    .ConfigureAwait(false);
+
+                return results?.ToList();
+            }
         }
 
         /// <inheritdoc />
-        public async Task<CatalogTravel> GetTravelById(int id)
+        public async Task<CatalogTravel> GetTravelByIdAsync(int id)
         {
+            if (_useCache && _travelsCache != null)
+            {
+                return _travelsCache.ContainsKey(id) ? _travelsCache[id] : null;
+            }
+
             using var db = _getDb();
-            return await db.QueryFirstOrDefaultAsync<CatalogTravel>(
-                $"{_selectQuery} WHERE Noces.id_noces = @Id",
-                new { Id = id });
+            return await db
+                .QueryFirstOrDefaultAsync<CatalogTravel>(
+                    $"{_selectQuery} WHERE Noces.id_noces = @Id",
+                    new { Id = id })
+                .ConfigureAwait(false);
         }
 
         /// <inheritdoc />
-        public async Task<CatalogTravel> GetFirstTravelByCountry(string search)
+        public async Task<CatalogTravel> GetFirstTravelByCountryAsync(string search)
         {
+            if (_useCache && _travelsCache != null)
+            {
+                return _travelsCache
+                    .Values
+                    // TODO: cette recherche fonctionne en %search% et est sensible à la casse
+                    // à voir si c'est ce qu'on veut
+                    .Where(_ => _.Country.Contains(search))
+                    .FirstOrDefault();
+            }
+
             // TODO: sans clause ORDER BY, tu n'as pas de garantie absolue que le résultat sera le même entre 2 exécutions
             // TODO: "% + search + %" (suggestion :))
             using var db = _getDb();
-            return await db.QueryFirstOrDefaultAsync<CatalogTravel>(
-                $"{_selectQuery} WHERE Pays.nom LIKE @Search",
-                new
-                {
-                    Search = search + '%'
-                });
+            return await db
+                .QueryFirstOrDefaultAsync<CatalogTravel>(
+                    $"{_selectQuery} WHERE Pays.nom LIKE @Search",
+                    new
+                    {
+                        Search = search + '%'
+                    })
+                .ConfigureAwait(false);
         }
 
         /// <inheritdoc />
-        public async Task<IEnumerable<CatalogTravel>> FindTravelsByCountry(string search, int pageSize, int pageNum)
+        public async Task<IReadOnlyCollection<CatalogTravel>> FindTravelsByCountryAsync(string search, int pageSize, int pageNum)
         {
-            // TODO: "% + search + %" (suggestion :))
             CheckPaginationParameters(pageSize, pageNum);
+
+            if (_useCache && _travelsCache != null)
+            {
+                return _travelsCache
+                    .Values
+                    // TODO: cette recherche fonctionne en %search% et est sensible à la casse
+                    // à voir si c'est ce qu'on veut
+                    .Where(_ => _.Country.Contains(search))
+                    .Skip(pageSize * pageNum)
+                    .Take(pageSize)
+                    .ToList();
+            }
+
+            // TODO: "% + search + %" (suggestion :))
             using var db = _getDb();
-            return await db.QueryAsync<CatalogTravel>(
-                $"{_selectQuery} WHERE Pays.nom LIKE @Search OFFSET @PageNum * @PageSize ROWS FETCH NEXT @PageSize ROWS ONLY",
-                new
-                {
-                    Search = search + '%',
-                    PageNum = pageNum,
-                    PageSize = pageSize
-                });
+            var results = await db
+                .QueryAsync<CatalogTravel>(
+                    $"{_selectQuery} WHERE Pays.nom LIKE @Search OFFSET @PageNum * @PageSize ROWS FETCH NEXT @PageSize ROWS ONLY",
+                    new
+                    {
+                        Search = search + '%',
+                        PageNum = pageNum,
+                        PageSize = pageSize
+                    })
+                .ConfigureAwait(false);
+
+            return results?.ToList();
         }
 
         /// <inheritdoc />
-        public void RemoveTavel(int id)
+        public async Task RemoveTavelAsync(int id)
         {
             using var db = _getDb();
-            db.Execute(
-                "Delete FROM Noces WHERE Noces.id_noces=@Id",
-                new { Id = id });
-            _travelsCache.Remove(id);
+            await db
+                .ExecuteAsync(
+                    "Delete FROM Noces WHERE Noces.id_noces=@Id",
+                    new { Id = id })
+                .ConfigureAwait(false);
+
+            _travelsCache?.Remove(id);
+        }
+
+        /// <inheritdoc />
+        public async Task<int?> AddNewTravelAsync(CatalogTravel newTravel)
+        {
+            if (newTravel == null)
+            {
+                throw new ArgumentNullException(nameof(newTravel));
+            }
+            // TODO: vérifier qu'un travel identique n'existe pas déjà ? (might be hard)
+
+            int? townId = await GetTownIdAsync(newTravel.Town).ConfigureAwait(false);
+            int? countryId = await GetCountryIdAsync(newTravel.Country).ConfigureAwait(false);
+            if (!townId.HasValue || !countryId.HasValue)
+            {
+                return null;
+            }
+
+            // TODO: pas certain à 100% d'avoir mis toutes les colonnes dans le INSERT
+            using var db = _getDb();
+            var results = await db
+                .QueryAsync<int>(@"
+                    INSERT INTO Noces
+                        (description_travel, nom, date_dep, prix, id_ville, id_pays)
+                    VALUES
+                        (@Description, @Name, @Departure, @Price, @Town, @Country);
+                    SELECT SCOPE_IDENTITY();",
+                    new
+                    {
+                        newTravel.Description,
+                        newTravel.Name,
+                        newTravel.Departure,
+                        newTravel.Price,
+                        Town = townId,
+                        Country = countryId
+                    })
+                .ConfigureAwait(false);
+
+            var id = results?.FirstOrDefault();
+
+            if (id.HasValue)
+            {
+                newTravel.Id = id;
+                _travelsCache?.Add(id.Value, newTravel);
+            }
+
+            return id;
+        }
+
+        private async Task<int?> GetCountryIdAsync(string country)
+        {
+            // TODO: J'ai un peu la flemme mais tu vois l'idée :)
+            throw new NotImplementedException();
+        }
+
+        private async Task<int?> GetTownIdAsync(string town)
+        {
+            // TODO: J'ai un peu la flemme mais tu vois l'idée :)
+            throw new NotImplementedException();
         }
 
         private static void CheckPaginationParameters(int pageSize, int pageNum)

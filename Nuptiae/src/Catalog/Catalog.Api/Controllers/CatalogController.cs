@@ -36,7 +36,7 @@ namespace Catalog.API.Controllers
         {
             try
             {
-                return Ok(await _repo.GetTravel(pageSize, pageNum));
+                return Ok(await _repo.GetTravelAsync(pageSize, pageNum));
             }
             catch (ArgumentOutOfRangeException e)
             {
@@ -56,7 +56,7 @@ namespace Catalog.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<CatalogTravel>> GetTravelId(int id)
         {
-            var result = await _repo.GetTravelById(id);
+            var result = await _repo.GetTravelByIdAsync(id);
             if (result == null)
             {
                 return NotFound();
@@ -81,7 +81,7 @@ namespace Catalog.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<CatalogTravel>> GetTravelSearsh(string search)
         {
-            var result = await _repo.GetFirstTravelByCountry(search);
+            var result = await _repo.GetFirstTravelByCountryAsync(search);
             if (result == null)
             {
                 return NotFound();
@@ -104,12 +104,12 @@ namespace Catalog.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> DeleteTrvaleById([FromRoute] int id)
         {
-            CatalogTravel result = await _repo.GetTravelById(id);
+            CatalogTravel result = await _repo.GetTravelByIdAsync(id);
             if (result == null)
             {
                 return NotFound("unKnow travel");
             }
-            _repo.RemoveTavel(id);
+            _repo.RemoveTavelAsync(id);
             return NoContent();
         }
 
@@ -127,7 +127,7 @@ namespace Catalog.API.Controllers
         {
             try
             {
-                return Ok(await _repo.FindTravelsByCountry(search, pageSize, pageNum));
+                return Ok(await _repo.FindTravelsByCountryAsync(search, pageSize, pageNum));
             }
             catch (ArgumentOutOfRangeException e)
             {

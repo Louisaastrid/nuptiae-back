@@ -38,8 +38,9 @@ namespace Catalog.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddSingleton<ICatalogRepo>(s =>
-                new CatalogRepo(() =>
-                    new SqlConnection(Configuration.GetConnectionString("Catalog"))));
+                new CatalogRepo(
+                    () => new SqlConnection(Configuration.GetConnectionString("Catalog")),
+                    Configuration.GetValue<bool>("UseCache"))); // TODO: c'est une peu à l'arraché, je ne suis pas certain que ça fonctionne
             services.AddControllers();
             services.AddCors(options =>
                 options.AddDefaultPolicy(builder =>
