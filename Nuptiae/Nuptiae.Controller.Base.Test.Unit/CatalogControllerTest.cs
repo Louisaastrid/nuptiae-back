@@ -68,7 +68,7 @@ namespace Nuptiae.Controller.Base.Test.Unit
         public async void GetReturnsProductWithSameId()
         {
             //ARRANGE //ACT 
-            var result = await _catalogControllerMock.GetTravelId(idTravel);
+            var result = await _catalogControllerMock.GetTravelByIdAsync(idTravel);
 
             //ASSERT 
 
@@ -86,12 +86,10 @@ namespace Nuptiae.Controller.Base.Test.Unit
                 .ReturnsAsync(expected);
 
             //ACT 
-            var result = await _catalogControllerMock.GetTravelId(idTravel);
+            var result = await _catalogControllerMock.GetTravelByIdAsync(idTravel);
 
             //ASSERT 
-            Assert.IsAssignableFrom<ActionResult<CatalogTravel>>(result.Result);
-            var actual = result.Equals(expected);
-            actual.CompareTo(expected);
+            Assert.IsAssignableFrom<NotFoundResult>(result.Result);
         }
     }
 }

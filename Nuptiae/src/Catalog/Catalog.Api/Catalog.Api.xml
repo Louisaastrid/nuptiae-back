@@ -4,52 +4,71 @@
         <name>Catalog.Api</name>
     </assembly>
     <members>
-        <member name="M:Catalog.API.Controllers.CatalogController.Get(System.Int32,System.Int32)">
+        <member name="T:Catalog.API.Controllers.CatalogController">
             <summary>
-            Get a paginated list of the catalog destinations
+            Catalog controller.
             </summary>
-            <param name="pageNum"> Page Num</param>
-            <param name="pageSize">Page Size </param>
-            <returns>Paginated list of Catalog Destinations </returns>
+            <seealso cref="T:Microsoft.AspNetCore.Mvc.ControllerBase"/>
+        </member>
+        <member name="M:Catalog.API.Controllers.CatalogController.#ctor(Catalog.Api.Models.ICatalogRepo,Microsoft.Extensions.Logging.ILogger{Catalog.API.Controllers.CatalogController})">
+            <summary>
+            Ctor.
+            </summary>
+            <param name="repo">Instance of <see cref="T:Catalog.Api.Models.ICatalogRepo"/>.</param>
+            <param name="logger">Instance of <see cref="T:Microsoft.Extensions.Logging.ILogger`1"/>.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="logger"/> is <c>Null</c>.</exception>
+            <exception cref="T:System.ArgumentNullException"><paramref name="repo"/> is <c>Null</c>.</exception>
+        </member>
+        <member name="M:Catalog.API.Controllers.CatalogController.GetAsync(System.Int32,System.Int32)">
+            <summary>
+            Gets a paginated list of the catalog destinations.
+            </summary>
+            <param name="pageNum">Page num.</param>
+            <param name="pageSize">Page size.</param>
+            <returns>Paginated list of Catalog Destinations.</returns>
             <response code="200">Request successfully processed</response>
             <response code="400">Error in the request parameters</response>
         </member>
-        <member name="M:Catalog.API.Controllers.CatalogController.GetTravelId(System.Int32)">
+        <member name="M:Catalog.API.Controllers.CatalogController.GetTravelByIdAsync(System.Int32)">
             <summary>
-            get the specified destination from his id 
+            Gets the specified destination from its identifier.
             </summary>
-            <param name="id"></param>
-            <returns>Catalog Destnations found </returns>
-            <response code="200">Catalog Item with the given ID found</response>
-            <response code="404">No catalog item with the given ID found</response>
+            <param name="id">Destination identifier.</param>
+            <returns>Catalog destination found.</returns>
+            <response code="200">Catalog Item with the given ID found.</response>
+            <response code="404">No catalog item with the given ID found.</response>
+            <response code="400">Invalid identifier.</response>
         </member>
-        <member name="M:Catalog.API.Controllers.CatalogController.GetTravelSearsh(System.String)">
+        <member name="M:Catalog.API.Controllers.CatalogController.GetFirstTravelByCountryAsync(System.String)">
             <summary>
-            get the specified destination from his country 
+            Gets the first destination related to a specific country. 
             </summary>
-            <param name="search"></param>
-            <returns>Catalog Destnations found </returns>
-            <response code="200">Catalog Item with the given ID found</response>
-            <response code="404">No catalog item with the given ID found</response>
+            <param name="country">Country search term.</param>
+            <returns>Catalog destination found.</returns>
+            <response code="200">Catalog Item with the given country found</response>
+            <response code="404">No catalog item with the given country found</response>
+            <response code="400">Invalid country.</response>
         </member>
-        <member name="M:Catalog.API.Controllers.CatalogController.DeleteTrvaleById(System.Int32)">
+        <member name="M:Catalog.API.Controllers.CatalogController.DeleteTravelByIdAsync(System.Int32)">
             <summary>
-            delete a destination with given id 
+            Deletes a destination with given id.
             </summary>
-            <param name="id"></param>
-            <returns>" "</returns>
-            <response code="200">Catalog Item with the given ID found</response>
-            <response code="204">Success no content</response>
-            <response code="404">No catalog item with the given ID found</response>
+            <param name="id">Destination identifier.</param>
+            <returns>Nothing.</returns>
+            <response code="204">Success no content.</response>
+            <response code="404">No catalog item with the given ID found.</response>
+            <response code="400">Invalid identifier.</response>
         </member>
-        <member name="M:Catalog.API.Controllers.CatalogController.GetTravelBySearchAsync(System.String,System.Int32,System.Int32)">
+        <member name="M:Catalog.API.Controllers.CatalogController.GetTravelBySearchAsync(Catalog.Api.Models.CatalogTravelSearch,System.Int32,System.Int32)">
             <summary>
-            Search with Country return all country travel by name 
+            Searches travels according to criteria request. 
             </summary>
-            <param name="country"></param>
-            <param name="pageNum"></param>
-            <param name="pageSize"></param>
-            <returns></returns>
+            <param name="search">Search request.</param>
+            <param name="pageNum">Page num.</param>
+            <param name="pageSize">Page size.</param>
+            <returns>Collection of destinations.</returns>
+            <response code="200">Catalog items matching criteria.</response>
+            <response code="400">Invalid request or pagination.</response>
         </member>
         <member name="T:Catalog.Api.Models.CatalogRepo">
             <summary>
@@ -77,7 +96,7 @@
         <member name="M:Catalog.Api.Models.CatalogRepo.FindTravelsByCountryAsync(System.String,System.Int32,System.Int32)">
             <inheritdoc />
         </member>
-        <member name="M:Catalog.Api.Models.CatalogRepo.RemoveTavelAsync(System.Int32)">
+        <member name="M:Catalog.Api.Models.CatalogRepo.RemoveTravelAsync(System.Int32)">
             <inheritdoc />
         </member>
         <member name="M:Catalog.Api.Models.CatalogRepo.AddNewTravelAsync(Catalog.Api.Models.CatalogTravel)">
@@ -123,6 +142,16 @@
             Country.
             </summary>
         </member>
+        <member name="T:Catalog.Api.Models.CatalogTravelSearch">
+            <summary>
+            Catalog travel search.
+            </summary>
+        </member>
+        <member name="P:Catalog.Api.Models.CatalogTravelSearch.Country">
+            <summary>
+            Country search term.
+            </summary>
+        </member>
         <member name="T:Catalog.Api.Models.ICatalogRepo">
             <summary>
             Travel catalog repository interface.
@@ -152,7 +181,7 @@
             <param name="search">Country search.</param>
             <returns>Travel instance or <c>Null</c>.</returns>
         </member>
-        <member name="M:Catalog.Api.Models.ICatalogRepo.RemoveTavelAsync(System.Int32)">
+        <member name="M:Catalog.Api.Models.ICatalogRepo.RemoveTravelAsync(System.Int32)">
             <summary>
             Removes a traval.
             </summary>

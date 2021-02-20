@@ -37,7 +37,7 @@ namespace Catalog.Api.Models
         /// </summary>
         /// <param name="id">Travel identifier.</param>
         /// <returns>Nothing.</returns>
-        Task RemoveTavelAsync(int id);
+        Task RemoveTravelAsync(int id);
 
         /// <summary>
         /// Gets paginated information about all travels for a specified country.

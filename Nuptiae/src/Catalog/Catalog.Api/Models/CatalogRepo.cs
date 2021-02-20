@@ -158,7 +158,7 @@ namespace Catalog.Api.Models
         }
 
         /// <inheritdoc />
-        public async Task RemoveTavelAsync(int id)
+        public async Task RemoveTravelAsync(int id)
         {
             using var db = _getDb();
             await db
