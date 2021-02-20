@@ -1,10 +1,10 @@
-﻿using Catalog.Api.Models;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Catalog.Api.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Catalog.API.Controllers
 {
@@ -81,7 +81,7 @@ namespace Catalog.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<CatalogTravel>> GetTravelSearsh(string search)
         {
-            var result = await _repo.FindTravelByCountry(search);
+            var result = await _repo.GetFirstTravelByCountry(search);
             if (result == null)
             {
                 return NotFound();
@@ -102,7 +102,7 @@ namespace Catalog.API.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult> DeleteTrvaleById ([FromRoute] int id)
+        public async Task<ActionResult> DeleteTrvaleById([FromRoute] int id)
         {
             CatalogTravel result = await _repo.GetTravelById(id);
             if (result == null)

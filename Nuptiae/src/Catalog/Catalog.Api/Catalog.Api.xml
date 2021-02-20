@@ -4,6 +4,75 @@
         <name>Catalog.Api</name>
     </assembly>
     <members>
+        <member name="M:Catalog.API.Controllers.CatalogController.Get(System.Int32,System.Int32)">
+            <summary>
+            Get a paginated list of the catalog destinations
+            </summary>
+            <param name="pageNum"> Page Num</param>
+            <param name="pageSize">Page Size </param>
+            <returns>Paginated list of Catalog Destinations </returns>
+            <response code="200">Request successfully processed</response>
+            <response code="400">Error in the request parameters</response>
+        </member>
+        <member name="M:Catalog.API.Controllers.CatalogController.GetTravelId(System.Int32)">
+            <summary>
+            get the specified destination from his id 
+            </summary>
+            <param name="id"></param>
+            <returns>Catalog Destnations found </returns>
+            <response code="200">Catalog Item with the given ID found</response>
+            <response code="404">No catalog item with the given ID found</response>
+        </member>
+        <member name="M:Catalog.API.Controllers.CatalogController.GetTravelSearsh(System.String)">
+            <summary>
+            get the specified destination from his country 
+            </summary>
+            <param name="search"></param>
+            <returns>Catalog Destnations found </returns>
+            <response code="200">Catalog Item with the given ID found</response>
+            <response code="404">No catalog item with the given ID found</response>
+        </member>
+        <member name="M:Catalog.API.Controllers.CatalogController.DeleteTrvaleById(System.Int32)">
+            <summary>
+            delete a destination with given id 
+            </summary>
+            <param name="id"></param>
+            <returns>" "</returns>
+            <response code="200">Catalog Item with the given ID found</response>
+            <response code="204">Success no content</response>
+            <response code="404">No catalog item with the given ID found</response>
+        </member>
+        <member name="M:Catalog.API.Controllers.CatalogController.GetTravelBySearchAsync(System.String,System.Int32,System.Int32)">
+            <summary>
+            Search with Country return all country travel by name 
+            </summary>
+            <param name="country"></param>
+            <param name="pageNum"></param>
+            <param name="pageSize"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Catalog.Api.Models.CatalogRepo.#ctor(System.Func{System.Data.SqlClient.SqlConnection})">
+            <summary>
+            Ctor.
+            </summary>
+            <param name="getDb">A delegate to get the SQL connection.</param>
+            <exception cref="T:System.ArgumentNullException"><paramref name="getDb"/> is <c>Null</c>.</exception>
+        </member>
+        <member name="M:Catalog.Api.Models.CatalogRepo.GetTravel(System.Int32,System.Int32)">
+            <inheritdoc />
+        </member>
+        <member name="M:Catalog.Api.Models.CatalogRepo.GetTravelById(System.Int32)">
+            <inheritdoc />
+        </member>
+        <member name="M:Catalog.Api.Models.CatalogRepo.GetFirstTravelByCountry(System.String)">
+            <inheritdoc />
+        </member>
+        <member name="M:Catalog.Api.Models.CatalogRepo.FindTravelsByCountry(System.String,System.Int32,System.Int32)">
+            <inheritdoc />
+        </member>
+        <member name="M:Catalog.Api.Models.CatalogRepo.RemoveTavel(System.Int32)">
+            <inheritdoc />
+        </member>
         <member name="M:Catalog.Api.Models.ICatalogRepo.GetTravel(System.Int32,System.Int32)">
             <summary>
             Get travels information
@@ -18,6 +87,22 @@
             </summary>
             <param name="id"></param>
             <returns>one travels</returns>
+        </member>
+        <member name="M:Catalog.Api.Models.ICatalogRepo.GetFirstTravelByCountry(System.String)">
+            <summary>
+            
+            </summary>
+            <param name="search"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Catalog.Api.Models.ICatalogRepo.FindTravelsByCountry(System.String,System.Int32,System.Int32)">
+            <summary>
+            
+            </summary>
+            <param name="search"></param>
+            <param name="pageSize"></param>
+            <param name="pageNum"></param>
+            <returns></returns>
         </member>
     </members>
 </doc>

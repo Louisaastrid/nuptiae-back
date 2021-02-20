@@ -1,25 +1,28 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace Catalog.Api.Models
 {
-    public interface ICatalogRepo : IDisposable
+    /// <summary>
+    /// Travel catalog repository interface.
+    /// </summary>
+    public interface ICatalogRepo
     {
+        /// <summary>
+        /// Gets information about all travels.
+        /// </summary>
+        /// <param name="pageSize">Pagination size.</param>
+        /// <param name="pageNum">Pagination number (starts at <c>0</c>).</param>
+        /// <returns>All travels.</returns>
+        /// <exception cref="System.ArgumentOutOfRangeException"><paramref name="pageSize"/> is below <c>1</c> or above <c>50</c>.</exception>
+        /// <exception cref="System.ArgumentOutOfRangeException"><paramref name="pageNum"/> is below <c>0</c>.</exception>
+        Task<IEnumerable<CatalogTravel>> GetTravel(int pageSize, int pageNum);
 
         /// <summary>
-        /// Get travels information
-        /// </summary>
-        /// <param name="pageSize"></param>
-        /// <param name="pageNum"></param>
-        /// <returns>All travels</returns>
-        Task<IEnumerable<CatalogTravel>> GetTravel(int pageSize, int pageNum);
-        /// <summary>
-        /// Get travels by id 
+        /// Gets a single travel by its identifier.
         /// </summary>
         /// <param name="id"></param>
-        /// <returns>one travels</returns>
+        /// <returns></returns>
         Task<CatalogTravel> GetTravelById(int id);
 
         /// <summary>
@@ -27,7 +30,7 @@ namespace Catalog.Api.Models
         /// </summary>
         /// <param name="search"></param>
         /// <returns></returns>
-        Task<CatalogTravel> FindTravelByCountry(string search);
+        Task<CatalogTravel> GetFirstTravelByCountry(string search);
 
 
         void RemoveTavel(int id);
