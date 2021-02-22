@@ -1,13 +1,17 @@
-﻿using Catalog.Api.Models;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Catalog.Api.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Catalog.API.Controllers
 {
+    /// <summary>
+    /// Catalog controller.
+    /// </summary>
+    /// <seealso cref="ControllerBase"/>
     [ApiController]
     [Route("api/v1/[controller]")]
     public class CatalogController : ControllerBase
@@ -15,6 +19,13 @@ namespace Catalog.API.Controllers
         private readonly ILogger<CatalogController> _logger;
         private readonly ICatalogRepo _repo;
 
+        /// <summary>
+        /// Ctor.
+        /// </summary>
+        /// <param name="repo">Instance of <see cref="ICatalogRepo"/>.</param>
+        /// <param name="logger">Instance of <see cref="ILogger{CatalogController}"/>.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="logger"/> is <c>Null</c>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="repo"/> is <c>Null</c>.</exception>
         public CatalogController(ICatalogRepo repo, ILogger<CatalogController> logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -22,116 +33,178 @@ namespace Catalog.API.Controllers
         }
 
         /// <summary>
-        /// Get a paginated list of the catalog destinations
+        /// Gets a paginated list of the catalog destinations.
         /// </summary>
-        /// <param name="pageNum"> Page Num</param>
-        /// <param name="pageSize">Page Size </param>
-        /// <returns>Paginated list of Catalog Destinations </returns>
+        /// <param name="pageNum">Page num.</param>
+        /// <param name="pageSize">Page size.</param>
+        /// <returns>Paginated list of Catalog Destinations.</returns>
         /// <response code="200">Request successfully processed</response>
         /// <response code="400">Error in the request parameters</response>
-        [HttpGet("travel")]
+        [HttpGet("travels")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<IEnumerable<CatalogTravel>>> Get([FromQuery] int pageNum = 0, [FromQuery] int pageSize = 10)
+        public async Task<ActionResult<IReadOnlyCollection<CatalogTravel>>> GetAsync([FromQuery] int pageNum = 0, [FromQuery] int pageSize = 10)
         {
             try
             {
-                return Ok(await _repo.GetTravel(pageSize, pageNum));
+                return Ok(await _repo.GetTravelAsync(pageSize, pageNum).ConfigureAwait(false));
             }
             catch (ArgumentOutOfRangeException e)
             {
+                // ça va fonctionner, mais traditionellement on va plutôt faire le test des inputs directement dans le controlleur
+                // plutôt que de lever une exception dans les couches basses
                 return BadRequest(e.Message);
             }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Exception on method {nameof(GetAsync)}.");
+                throw;
+            }
         }
 
         /// <summary>
-        /// get the specified destination from his id 
+        /// Gets the specified destination from its identifier.
         /// </summary>
-        /// <param name="id"></param>
-        /// <returns>Catalog Destnations found </returns>
-        /// <response code="200">Catalog Item with the given ID found</response>
-        /// <response code="404">No catalog item with the given ID found</response>
-        [HttpGet("travel/{id:int}")]
+        /// <param name="id">Destination identifier.</param>
+        /// <returns>Catalog destination found.</returns>
+        /// <response code="200">Catalog Item with the given ID found.</response>
+        /// <response code="404">No catalog item with the given ID found.</response>
+        /// <response code="400">Invalid identifier.</response>
+        [HttpGet("travels/{id:int}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<CatalogTravel>> GetTravelId(int id)
+        public async Task<ActionResult<CatalogTravel>> GetTravelByIdAsync([FromRoute] int id)
         {
-            var result = await _repo.GetTravelById(id);
-            if (result == null)
+            if (id <= 0)
             {
-                return NotFound();
-            }
-            else
-            {
-                return result;
+                return BadRequest();
             }
 
+            try
+            {
+                var result = await _repo.GetTravelByIdAsync(id);
+                if (result == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Exception on method {nameof(GetTravelByIdAsync)}.");
+                throw;
+            }
         }
 
-
         /// <summary>
-        /// get the specified destination from his country 
+        /// Gets the first destination related to a specific country. 
         /// </summary>
-        /// <param name="search"></param>
-        /// <returns>Catalog Destnations found </returns>
-        /// <response code="200">Catalog Item with the given ID found</response>
-        /// <response code="404">No catalog item with the given ID found</response>
-        [HttpGet("travel/{search}")]
+        /// <param name="country">Country search term.</param>
+        /// <returns>Catalog destination found.</returns>
+        /// <response code="200">Catalog Item with the given country found</response>
+        /// <response code="404">No catalog item with the given country found</response>
+        /// <response code="400">Invalid country.</response>
+        [HttpGet("travels/{country:regex(^[[a-zA-Z]])}")]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<CatalogTravel>> GetTravelSearsh(string search)
+        public async Task<ActionResult<CatalogTravel>> GetFirstTravelByCountryAsync([FromRoute] string country)
         {
-            var result = await _repo.FindTravelByCountry(search);
-            if (result == null)
+            if (string.IsNullOrWhiteSpace(country))
             {
-                return NotFound();
+                return BadRequest();
             }
-            return result;
 
+            try
+            {
+                var result = await _repo.GetFirstTravelByCountryAsync(country);
+                if (result == null)
+                {
+                    return NotFound();
+                }
+
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Exception on method {nameof(GetFirstTravelByCountryAsync)}.");
+                throw;
+            }
         }
 
         /// <summary>
-        /// delete a destination with given id 
+        /// Deletes a destination with given id.
         /// </summary>
-        /// <param name="id"></param>
-        /// <returns>" "</returns>
-        /// <response code="200">Catalog Item with the given ID found</response>
-        /// <response code="204">Success no content</response>
-        /// <response code="404">No catalog item with the given ID found</response>
-        [HttpDelete("travel/{id:int}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
+        /// <param name="id">Destination identifier.</param>
+        /// <returns>Nothing.</returns>
+        /// <response code="204">Success no content.</response>
+        /// <response code="404">No catalog item with the given ID found.</response>
+        /// <response code="400">Invalid identifier.</response>
+        [HttpDelete("travels/{id:int}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult> DeleteTrvaleById ([FromRoute] int id)
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> DeleteTravelByIdAsync([FromRoute] int id)
         {
-            CatalogTravel result = await _repo.GetTravelById(id);
-            if (result == null)
+            if (id <= 0)
             {
-                return NotFound("unKnow travel");
+                return BadRequest();
             }
-            _repo.RemoveTavel(id);
-            return NoContent();
+
+            try
+            {
+                var result = await _repo.GetTravelByIdAsync(id);
+                if (result == null)
+                {
+                    return NotFound("Unknow travel.");
+                }
+
+                await _repo.RemoveTravelAsync(id).ConfigureAwait(false);
+                return NoContent();
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Exception on method {nameof(DeleteTravelByIdAsync)}.");
+                throw;
+            }
         }
 
         /// <summary>
-        /// Search with Country return all country travel by name 
+        /// Searches travels according to criteria request. 
         /// </summary>
-        /// <param name="country"></param>
-        /// <param name="pageNum"></param>
-        /// <param name="pageSize"></param>
-        /// <returns></returns>
-        [HttpGet("trip/{search:regex(^[[a-zA-Z]])}")]
+        /// <param name="search">Search request.</param>
+        /// <param name="pageNum">Page num.</param>
+        /// <param name="pageSize">Page size.</param>
+        /// <returns>Collection of destinations.</returns>
+        /// <response code="200">Catalog items matching criteria.</response>
+        /// <response code="400">Invalid request or pagination.</response>
+        [HttpPost("travels/search")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<IEnumerable<CatalogTravel>>> GetTravelBySearchAsync([FromQuery] string search, [FromQuery] int pageNum = 0, [FromQuery] int pageSize = 10)
+        public async Task<ActionResult<IReadOnlyCollection<CatalogTravel>>> GetTravelBySearchAsync([FromBody] CatalogTravelSearch search, [FromQuery] int pageNum = 0, [FromQuery] int pageSize = 10)
         {
+            // TODO: ok là j'avoue sur cette méthode j'ai changé le paradigme...
+
+
+            if (search == null)
+            {
+                return BadRequest();
+            }
+
             try
             {
-                return Ok(await _repo.FindTravelsByCountry(search, pageSize, pageNum));
+                return Ok(await _repo.FindTravelsByCountryAsync(search.Country, pageSize, pageNum).ConfigureAwait(false));
             }
             catch (ArgumentOutOfRangeException e)
             {
                 return BadRequest(e.Message);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Exception on method {nameof(GetTravelBySearchAsync)}.");
+                throw;
             }
         }
     }

@@ -1,11 +1,10 @@
 using System;
 using Catalog.Api.Models;
 using Catalog.API.Controllers;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using Microsoft.AspNetCore.Http;
 using Moq;
 using Xunit;
-using Microsoft.AspNetCore.Mvc;
 
 namespace Nuptiae.Controller.Base.Test.Unit
 {
@@ -17,23 +16,23 @@ namespace Nuptiae.Controller.Base.Test.Unit
         private readonly int idTravel = 8;
         private readonly string search = "search";
         private readonly CatalogTravel travel = new CatalogTravel
-            {
-                Country = "France",
-                Depature = DateTime.Now,
-                Description = "blablabla",
-                Id = 13,
-                Name = "Test",
-                Price = 1230.99M,
-                Town = "Bordeaux"
-            };
+        {
+            Country = "France",
+            Departure = DateTime.Now,
+            Description = "blablabla",
+            Id = 13,
+            Name = "Test",
+            Price = 1230.99M,
+            Town = "Bordeaux"
+        };
 
-    public CatalogControllerTest()
+        public CatalogControllerTest()
         {
             _catalogRepoMock = new Mock<ICatalogRepo>();
             _loggerCatalogMock = new Mock<ILogger<CatalogController>>();
 
 
-            _catalogControllerMock = new CatalogController (_catalogRepoMock.Object, _loggerCatalogMock.Object);
+            _catalogControllerMock = new CatalogController(_catalogRepoMock.Object, _loggerCatalogMock.Object);
 
         }
         [Fact]
@@ -69,12 +68,12 @@ namespace Nuptiae.Controller.Base.Test.Unit
         public async void GetReturnsProductWithSameId()
         {
             //ARRANGE //ACT 
-            var result = await _catalogControllerMock.GetTravelId(idTravel);
+            var result = await _catalogControllerMock.GetTravelByIdAsync(idTravel);
 
             //ASSERT 
 
             Assert.IsType<ActionResult<CatalogTravel>>(result);
-          
+
         }
 
         [Fact]
@@ -83,16 +82,14 @@ namespace Nuptiae.Controller.Base.Test.Unit
             //ARRANGE 
             CatalogTravel expected = null;
             _catalogRepoMock
-                .Setup(x => x.GetTravelById(It.IsAny<int>()))
+                .Setup(x => x.GetTravelByIdAsync(It.IsAny<int>()))
                 .ReturnsAsync(expected);
 
             //ACT 
-            var result = await _catalogControllerMock.GetTravelId(idTravel);
+            var result = await _catalogControllerMock.GetTravelByIdAsync(idTravel);
 
             //ASSERT 
-            Assert.IsAssignableFrom<ActionResult<CatalogTravel>>(result.Result);
-            var actual = result.Equals(expected);
-            actual.CompareTo(expected);
+            Assert.IsAssignableFrom<NotFoundResult>(result.Result);
         }
     }
 }
