@@ -40,7 +40,7 @@ namespace Catalog.API.Controllers
         /// <returns>Paginated list of Catalog Destinations.</returns>
         /// <response code="200">Request successfully processed</response>
         /// <response code="400">Error in the request parameters</response>
-        [HttpGet("travels")]
+        [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<IReadOnlyCollection<CatalogTravel>>> GetAsync([FromQuery] int pageNum = 0, [FromQuery] int pageSize = 10)

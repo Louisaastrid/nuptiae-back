@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Threading.Tasks;
@@ -53,7 +54,7 @@ namespace Catalog.Api.Models
                 {
                     using var db = _getDb();
                     var results = await db
-                        .QueryAsync<CatalogTravel>($"{_selectQuery}")
+                        .QueryAsync<CatalogTravel>("allDestinationsNoce", commandType: CommandType.StoredProcedure)
                         .ConfigureAwait(false);
 
                     _travelsCache = results?.ToDictionary(_ => _.Id.Value, _ => _)
@@ -93,8 +94,8 @@ namespace Catalog.Api.Models
             using var db = _getDb();
             return await db
                 .QueryFirstOrDefaultAsync<CatalogTravel>(
-                    $"{_selectQuery} WHERE Noces.id_noces = @Id",
-                    new { Id = id })
+                    "destinationsNuptiaeById",
+                    new { Id = id }, commandType: CommandType.StoredProcedure)
                 .ConfigureAwait(false);
         }
 
