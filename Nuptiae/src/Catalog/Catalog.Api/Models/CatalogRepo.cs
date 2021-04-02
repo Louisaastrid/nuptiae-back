@@ -116,7 +116,7 @@ namespace Catalog.Api.Models
                     new
                     {
                         Search = search + '%'
-                    })
+                    }, commandType: CommandType.StoredProcedure)
                 .ConfigureAwait(false);
         }
 
@@ -147,7 +147,7 @@ namespace Catalog.Api.Models
                         Search = search + '%',
                         PageNum = pageNum,
                         PageSize = pageSize
-                    })
+                    }, commandType: CommandType.StoredProcedure)
                 .ConfigureAwait(false);
 
             return results?.ToList();
