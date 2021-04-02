@@ -1,0 +1,78 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Identity.Api</name>
+    </assembly>
+    <members>
+        <member name="M:Identity.Api.Controllers.IdentityController.Post(Identity.Api.Models.IdentityUser)">
+            <summary>
+            
+            </summary>
+            <param name="newUser"></param>
+            <returns></returns>
+            <response code="200">Request successfully processed</response>
+            <response code="400">Error in the request parameters</response>
+        </member>
+        <member name="T:Identity.Api.Models.IdentityRepo">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:Identity.Api.Models.IdentityRepo.#ctor(System.String)">
+            <summary>
+            
+            </summary>
+            <param name="connectionString"></param>
+        </member>
+        <member name="M:Identity.Api.Models.IdentityRepo.Dispose">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:Identity.Api.Models.IdentityUser">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:Identity.Api.Models.IdentityUser.Id_User">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:Identity.Api.Models.IdentityUser.Name">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:Identity.Api.Models.IdentityUser.Surname">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:Identity.Api.Models.IdentityUser.Email">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:Identity.Api.Models.IdentityUser.ZipCode">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:Identity.Api.Models.IdentityUser.Adress">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:Identity.Api.Models.IdentityUser.PhoneNumber">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:Identity.Api.Models.IdentityUser.Password">
+            <summary>
+            
+            </summary>
+        </member>
+    </members>
+</doc>
