@@ -18,18 +18,13 @@ namespace Catalog.Api.Models
         private Dictionary<int, CatalogTravel> _travelsCache = null;
         private readonly bool _useCache;
 
-        // TODO: comme j'ai enlevé le ".*", il manque peut être des colonnes (à spécifier explicitement)
-        private const string _selectQuery = @"SELECT
-            Noces.description_travel As Description
-            , Noces.nom As Name
-            , Noces.date_dep As Departure
-            , Noces.prix As Price
-            , Noces.id_noces As Id
-            , Ville.nom As Town
-            , Pays.nom AS Country
-            FROM Noces WITH(NOLOCK)
-            INNER JOIN Ville WITH(NOLOCK) ON Ville.id_ville = Noces.id_ville
-            INNER JOIN Pays WITH(NOLOCK) ON Pays.id_pays = Noces.id_pays";
+        //CONSTANTES 
+        internal const string alldestinations = "allDestinationTravel";
+        internal const string destinationByid = "destinationsNuptiaeById";
+        internal const string searchCountry= "searchCountry";
+        internal const string destinationsByPage= "destinationsByPage";
+
+
 
         /// <summary>
         /// Ctor.
@@ -54,7 +49,7 @@ namespace Catalog.Api.Models
                 {
                     using var db = _getDb();
                     var results = await db
-                        .QueryAsync<CatalogTravel>("allDestinationsNoce", commandType: CommandType.StoredProcedure)
+                        .QueryAsync<CatalogTravel>(alldestinations, commandType: CommandType.StoredProcedure)
                         .ConfigureAwait(false);
 
                     _travelsCache = results?.ToDictionary(_ => _.Id.Value, _ => _)
@@ -71,12 +66,12 @@ namespace Catalog.Api.Models
                 using var db = _getDb();
                 var results = await db
                     .QueryAsync<CatalogTravel>(
-                        $"{_selectQuery} ORDER BY Noces.id_noces OFFSET @PageNum * @PageSize ROWS FETCH NEXT @PageSize ROWS ONLY",
+                       destinationsByPage,
                         new
                         {
                             PageNum = pageNum,
                             PageSize = pageSize
-                        })
+                        }, commandType: CommandType.StoredProcedure)
                     .ConfigureAwait(false);
 
                 return results?.ToList();
@@ -94,7 +89,7 @@ namespace Catalog.Api.Models
             using var db = _getDb();
             return await db
                 .QueryFirstOrDefaultAsync<CatalogTravel>(
-                    "destinationsNuptiaeById",
+                    destinationByid,
                     new { Id = id }, commandType: CommandType.StoredProcedure)
                 .ConfigureAwait(false);
         }
@@ -108,7 +103,7 @@ namespace Catalog.Api.Models
                     .Values
                     // TODO: cette recherche fonctionne en %search% et est sensible à la casse
                     // à voir si c'est ce qu'on veut
-                    .Where(_ => _.Country.Contains(search))
+                    .Where(_ => _.Country.Contains(search,StringComparison.InvariantCultureIgnoreCase))
                     .FirstOrDefault();
             }
 
@@ -117,7 +112,7 @@ namespace Catalog.Api.Models
             using var db = _getDb();
             return await db
                 .QueryFirstOrDefaultAsync<CatalogTravel>(
-                    $"{_selectQuery} WHERE Pays.nom LIKE @Search",
+                    $"{alldestinations} WHERE Pays.nom LIKE @Search",
                     new
                     {
                         Search = search + '%'
@@ -136,7 +131,7 @@ namespace Catalog.Api.Models
                     .Values
                     // TODO: cette recherche fonctionne en %search% et est sensible à la casse
                     // à voir si c'est ce qu'on veut
-                    .Where(_ => _.Country.Contains(search))
+                    .Where(_ => _.Country.Contains(search, StringComparison.InvariantCultureIgnoreCase))
                     .Skip(pageSize * pageNum)
                     .Take(pageSize)
                     .ToList();
@@ -146,7 +141,7 @@ namespace Catalog.Api.Models
             using var db = _getDb();
             var results = await db
                 .QueryAsync<CatalogTravel>(
-                    $"{_selectQuery} WHERE Pays.nom LIKE @Search OFFSET @PageNum * @PageSize ROWS FETCH NEXT @PageSize ROWS ONLY",
+                    $"{alldestinations} WHERE Pays.nom LIKE @Search OFFSET @PageNum * @PageSize ROWS FETCH NEXT @PageSize ROWS ONLY",
                     new
                     {
                         Search = search + '%',
