@@ -207,5 +207,41 @@ namespace Catalog.API.Controllers
                 throw;
             }
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="newTravel"></param>
+        /// <returns></returns>
+        [HttpPost("travels")]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> InsertTravelAsync([FromBody] CatalogTravel newTravel)
+        {
+            if (newTravel == null)
+            {
+                return BadRequest();
+            }
+
+            try
+            {
+                var id = await _repo.AddNewTravelAsync(newTravel).ConfigureAwait(false);
+                if (!id.HasValue)
+                {
+                    return Problem("Error");
+                }
+                return Created("travels/{id}", id.Value);
+            }
+            catch (ArgumentOutOfRangeException e)
+            {
+                return BadRequest(e.Message);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, $"Exception on method {nameof(InsertTravelAsync)}.");
+                throw;
+            }
+
+        }
     }
 }

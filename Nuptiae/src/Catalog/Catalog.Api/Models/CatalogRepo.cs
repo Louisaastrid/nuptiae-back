@@ -18,18 +18,14 @@ namespace Catalog.Api.Models
         private Dictionary<int, CatalogTravel> _travelsCache = null;
         private readonly bool _useCache;
 
-        // TODO: comme j'ai enlevé le ".*", il manque peut être des colonnes (à spécifier explicitement)
-        private const string _selectQuery = @"SELECT
-            Noces.description_travel As Description
-            , Noces.nom As Name
-            , Noces.date_dep As Departure
-            , Noces.prix As Price
-            , Noces.id_noces As Id
-            , Ville.nom As Town
-            , Pays.nom AS Country
-            FROM Noces WITH(NOLOCK)
-            INNER JOIN Ville WITH(NOLOCK) ON Ville.id_ville = Noces.id_ville
-            INNER JOIN Pays WITH(NOLOCK) ON Pays.id_pays = Noces.id_pays";
+        //CONSTANTES 
+        internal const string alldestinations = "allDestinationTravel";
+        internal const string destinationByid = "destinationsNuptiaeById";
+        internal const string searchCountry= "searchCountry";
+        internal const string destinationsByPage= "destinationsByPage";
+        internal const string DestinationTravelByCountry = "DestinationTravelByCountry";
+
+
 
         /// <summary>
         /// Ctor.
@@ -54,7 +50,7 @@ namespace Catalog.Api.Models
                 {
                     using var db = _getDb();
                     var results = await db
-                        .QueryAsync<CatalogTravel>("allDestinationsNoce", commandType: CommandType.StoredProcedure)
+                        .QueryAsync<CatalogTravel>(alldestinations, commandType: CommandType.StoredProcedure)
                         .ConfigureAwait(false);
 
                     _travelsCache = results?.ToDictionary(_ => _.Id.Value, _ => _)
@@ -71,12 +67,12 @@ namespace Catalog.Api.Models
                 using var db = _getDb();
                 var results = await db
                     .QueryAsync<CatalogTravel>(
-                        $"{_selectQuery} ORDER BY Noces.id_noces OFFSET @PageNum * @PageSize ROWS FETCH NEXT @PageSize ROWS ONLY",
+                       destinationsByPage,
                         new
                         {
                             PageNum = pageNum,
                             PageSize = pageSize
-                        })
+                        }, commandType: CommandType.StoredProcedure)
                     .ConfigureAwait(false);
 
                 return results?.ToList();
@@ -94,7 +90,7 @@ namespace Catalog.Api.Models
             using var db = _getDb();
             return await db
                 .QueryFirstOrDefaultAsync<CatalogTravel>(
-                    "destinationsNuptiaeById",
+                    destinationByid,
                     new { Id = id }, commandType: CommandType.StoredProcedure)
                 .ConfigureAwait(false);
         }
@@ -106,22 +102,19 @@ namespace Catalog.Api.Models
             {
                 return _travelsCache
                     .Values
-                    // TODO: cette recherche fonctionne en %search% et est sensible à la casse
-                    // à voir si c'est ce qu'on veut
-                    .Where(_ => _.Country.Contains(search))
+                    .Where(_ => _.Country.StartsWith(search,StringComparison.InvariantCultureIgnoreCase))
                     .FirstOrDefault();
             }
 
             // TODO: sans clause ORDER BY, tu n'as pas de garantie absolue que le résultat sera le même entre 2 exécutions
-            // TODO: "% + search + %" (suggestion :))
             using var db = _getDb();
             return await db
                 .QueryFirstOrDefaultAsync<CatalogTravel>(
-                    $"{_selectQuery} WHERE Pays.nom LIKE @Search",
+                    $"{alldestinations} WHERE Pays.nom LIKE @Search",
                     new
                     {
                         Search = search + '%'
-                    })
+                    }, commandType: CommandType.StoredProcedure)
                 .ConfigureAwait(false);
         }
 
@@ -134,25 +127,23 @@ namespace Catalog.Api.Models
             {
                 return _travelsCache
                     .Values
-                    // TODO: cette recherche fonctionne en %search% et est sensible à la casse
-                    // à voir si c'est ce qu'on veut
-                    .Where(_ => _.Country.Contains(search))
+                    .Where(_ => _.Country.StartsWith(search, StringComparison.InvariantCultureIgnoreCase))
                     .Skip(pageSize * pageNum)
                     .Take(pageSize)
                     .ToList();
             }
 
-            // TODO: "% + search + %" (suggestion :))
+
             using var db = _getDb();
             var results = await db
                 .QueryAsync<CatalogTravel>(
-                    $"{_selectQuery} WHERE Pays.nom LIKE @Search OFFSET @PageNum * @PageSize ROWS FETCH NEXT @PageSize ROWS ONLY",
+                    DestinationTravelByCountry,
                     new
                     {
                         Search = search + '%',
                         PageNum = pageNum,
                         PageSize = pageSize
-                    })
+                    }, commandType: CommandType.StoredProcedure)
                 .ConfigureAwait(false);
 
             return results?.ToList();
@@ -180,11 +171,18 @@ namespace Catalog.Api.Models
             }
             // TODO: vérifier qu'un travel identique n'existe pas déjà ? (might be hard)
 
-            int? townId = await GetTownIdAsync(newTravel.Town).ConfigureAwait(false);
             int? countryId = await GetCountryIdAsync(newTravel.Country).ConfigureAwait(false);
-            if (!townId.HasValue || !countryId.HasValue)
+            if (!countryId.HasValue)
             {
-                return null;
+                countryId = await InsertCountryAsync(newTravel.Country).ConfigureAwait(false);
+            }
+
+
+
+            int? townId = await GetTownIdAsync(newTravel.Country).ConfigureAwait(false);
+            if (!townId.HasValue)
+            {
+                townId = await InsertTownAsync(newTravel.Country).ConfigureAwait(false);
             }
 
             // TODO: pas certain à 100% d'avoir mis toutes les colonnes dans le INSERT
@@ -218,16 +216,28 @@ namespace Catalog.Api.Models
             return id;
         }
 
+        private Task<int?> InsertTownAsync(string country)
+        {
+            throw new NotImplementedException();
+        }
+
+        private Task<int?> InsertCountryAsync(string country)
+        {
+            throw new NotImplementedException();
+        }
+
         private async Task<int?> GetCountryIdAsync(string country)
         {
             // TODO: J'ai un peu la flemme mais tu vois l'idée :)
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+            return 1;
         }
 
         private async Task<int?> GetTownIdAsync(string town)
         {
             // TODO: J'ai un peu la flemme mais tu vois l'idée :)
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+            return 2;
         }
 
         private static void CheckPaginationParameters(int pageSize, int pageNum)
