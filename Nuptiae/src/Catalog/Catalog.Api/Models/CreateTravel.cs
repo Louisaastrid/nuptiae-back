@@ -1,17 +1,19 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Catalog.Api.Models
 {
     /// <summary>
-    /// Catalog travel DTO.
+    /// CreateTravel DTO
     /// </summary>
-    public class CatalogTravel
+    public class CreateTravel
     {
         /// <summary>
         /// Identifier.
         /// </summary>
         public int? Id { get; set; }
-
         /// <summary>
         /// Name.
         /// </summary>
@@ -41,6 +43,5 @@ namespace Catalog.Api.Models
         /// Country.
         /// </summary>
         public string Country { get; set; }
-
     }
 }

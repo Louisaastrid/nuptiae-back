@@ -23,6 +23,7 @@ namespace Catalog.Api.Models
         internal const string destinationByid = "destinationsNuptiaeById";
         internal const string searchCountry= "searchCountry";
         internal const string destinationsByPage= "destinationsByPage";
+        internal const string DestinationTravelByCountry = "DestinationTravelByCountry";
 
 
 
@@ -101,14 +102,11 @@ namespace Catalog.Api.Models
             {
                 return _travelsCache
                     .Values
-                    // TODO: cette recherche fonctionne en %search% et est sensible à la casse
-                    // à voir si c'est ce qu'on veut
-                    .Where(_ => _.Country.Contains(search,StringComparison.InvariantCultureIgnoreCase))
+                    .Where(_ => _.Country.StartsWith(search,StringComparison.InvariantCultureIgnoreCase))
                     .FirstOrDefault();
             }
 
             // TODO: sans clause ORDER BY, tu n'as pas de garantie absolue que le résultat sera le même entre 2 exécutions
-            // TODO: "% + search + %" (suggestion :))
             using var db = _getDb();
             return await db
                 .QueryFirstOrDefaultAsync<CatalogTravel>(
@@ -129,19 +127,17 @@ namespace Catalog.Api.Models
             {
                 return _travelsCache
                     .Values
-                    // TODO: cette recherche fonctionne en %search% et est sensible à la casse
-                    // à voir si c'est ce qu'on veut
-                    .Where(_ => _.Country.Contains(search, StringComparison.InvariantCultureIgnoreCase))
+                    .Where(_ => _.Country.StartsWith(search, StringComparison.InvariantCultureIgnoreCase))
                     .Skip(pageSize * pageNum)
                     .Take(pageSize)
                     .ToList();
             }
 
-            // TODO: "% + search + %" (suggestion :))
+
             using var db = _getDb();
             var results = await db
                 .QueryAsync<CatalogTravel>(
-                    $"{alldestinations} WHERE Pays.nom LIKE @Search OFFSET @PageNum * @PageSize ROWS FETCH NEXT @PageSize ROWS ONLY",
+                    DestinationTravelByCountry,
                     new
                     {
                         Search = search + '%',
@@ -175,11 +171,18 @@ namespace Catalog.Api.Models
             }
             // TODO: vérifier qu'un travel identique n'existe pas déjà ? (might be hard)
 
-            int? townId = await GetTownIdAsync(newTravel.Town).ConfigureAwait(false);
             int? countryId = await GetCountryIdAsync(newTravel.Country).ConfigureAwait(false);
-            if (!townId.HasValue || !countryId.HasValue)
+            if (!countryId.HasValue)
             {
-                return null;
+                countryId = await InsertCountryAsync(newTravel.Country).ConfigureAwait(false);
+            }
+
+
+
+            int? townId = await GetTownIdAsync(newTravel.Country).ConfigureAwait(false);
+            if (!townId.HasValue)
+            {
+                townId = await InsertTownAsync(newTravel.Country).ConfigureAwait(false);
             }
 
             // TODO: pas certain à 100% d'avoir mis toutes les colonnes dans le INSERT
@@ -213,16 +216,28 @@ namespace Catalog.Api.Models
             return id;
         }
 
+        private Task<int?> InsertTownAsync(string country)
+        {
+            throw new NotImplementedException();
+        }
+
+        private Task<int?> InsertCountryAsync(string country)
+        {
+            throw new NotImplementedException();
+        }
+
         private async Task<int?> GetCountryIdAsync(string country)
         {
             // TODO: J'ai un peu la flemme mais tu vois l'idée :)
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+            return 1;
         }
 
         private async Task<int?> GetTownIdAsync(string town)
         {
             // TODO: J'ai un peu la flemme mais tu vois l'idée :)
-            throw new NotImplementedException();
+            //throw new NotImplementedException();
+            return 2;
         }
 
         private static void CheckPaginationParameters(int pageSize, int pageNum)
