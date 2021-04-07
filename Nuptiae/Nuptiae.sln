@@ -11,7 +11,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Unit", "Unit", "{7D5BC89C-3
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nuptiae.Controller.Base.Test.Unit", "Nuptiae.Controller.Base.Test.Unit\Nuptiae.Controller.Base.Test.Unit.csproj", "{C0166D1E-3076-45C0-9324-6DF3FA2137E9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Identity.Api", "src\Identity\Identity.Api\Identity.Api\Identity.Api.csproj", "{6344CBEB-84CB-4AD9-9D20-BC02EC596145}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Identity.Api", "src\Identity\Identity.Api\Identity.Api\Identity.Api.csproj", "{6344CBEB-84CB-4AD9-9D20-BC02EC596145}"
+EndProject
+Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{95C8A780-54BD-494A-BEAA-5C0C033DC0ED}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,6 +33,10 @@ Global
 		{6344CBEB-84CB-4AD9-9D20-BC02EC596145}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6344CBEB-84CB-4AD9-9D20-BC02EC596145}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6344CBEB-84CB-4AD9-9D20-BC02EC596145}.Release|Any CPU.Build.0 = Release|Any CPU
+		{95C8A780-54BD-494A-BEAA-5C0C033DC0ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95C8A780-54BD-494A-BEAA-5C0C033DC0ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95C8A780-54BD-494A-BEAA-5C0C033DC0ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95C8A780-54BD-494A-BEAA-5C0C033DC0ED}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

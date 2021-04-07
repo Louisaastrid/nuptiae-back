@@ -21,9 +21,10 @@ namespace Catalog.Api.Models
         //CONSTANTES 
         internal const string alldestinations = "allDestinationTravel";
         internal const string destinationByid = "destinationsNuptiaeById";
-        internal const string searchCountry= "searchCountry";
-        internal const string destinationsByPage= "destinationsByPage";
-        internal const string DestinationTravelByCountry = "DestinationTravelByCountry";
+        internal const string searchCountry = "searchCountry";
+        internal const string destinationsByPage = "destinationsByPage";
+        internal const string destinationTravelByCountry = "destinationTravelByCountry";
+        internal const string getCountryIdtravelTest = "getCountryIdtravelTest";
 
 
 
@@ -102,7 +103,7 @@ namespace Catalog.Api.Models
             {
                 return _travelsCache
                     .Values
-                    .Where(_ => _.Country.StartsWith(search,StringComparison.InvariantCultureIgnoreCase))
+                    .Where(_ => _.Country.StartsWith(search, StringComparison.InvariantCultureIgnoreCase))
                     .FirstOrDefault();
             }
 
@@ -110,7 +111,7 @@ namespace Catalog.Api.Models
             using var db = _getDb();
             return await db
                 .QueryFirstOrDefaultAsync<CatalogTravel>(
-                    $"{alldestinations} WHERE Pays.nom LIKE @Search",
+                   searchCountry,
                     new
                     {
                         Search = search + '%'
@@ -137,7 +138,7 @@ namespace Catalog.Api.Models
             using var db = _getDb();
             var results = await db
                 .QueryAsync<CatalogTravel>(
-                    DestinationTravelByCountry,
+                    destinationTravelByCountry,
                     new
                     {
                         Search = search + '%',
@@ -229,8 +230,11 @@ namespace Catalog.Api.Models
         private async Task<int?> GetCountryIdAsync(string country)
         {
             // TODO: J'ai un peu la flemme mais tu vois l'idée :)
-            //throw new NotImplementedException();
-            return 1;
+            if (country == null)
+            {
+                throw new NotImplementedException();
+            }
+            return 2;
         }
 
         private async Task<int?> GetTownIdAsync(string town)
