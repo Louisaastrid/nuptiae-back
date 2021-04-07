@@ -4,27 +4,7 @@
         <name>Identity.Api</name>
     </assembly>
     <members>
-        <member name="M:Identity.Api.Controllers.IdentityController.Post(Identity.Api.Models.IdentityUser)">
-            <summary>
-            
-            </summary>
-            <param name="newUser"></param>
-            <returns></returns>
-            <response code="200">Request successfully processed</response>
-            <response code="400">Error in the request parameters</response>
-        </member>
         <member name="T:Identity.Api.Models.IdentityRepo">
-            <summary>
-            
-            </summary>
-        </member>
-        <member name="M:Identity.Api.Models.IdentityRepo.#ctor(System.String)">
-            <summary>
-            
-            </summary>
-            <param name="connectionString"></param>
-        </member>
-        <member name="M:Identity.Api.Models.IdentityRepo.Dispose">
             <summary>
             
             </summary>

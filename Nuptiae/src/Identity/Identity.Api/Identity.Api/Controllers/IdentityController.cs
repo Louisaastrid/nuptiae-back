@@ -46,28 +46,6 @@ namespace Identity.Api.Controllers
         }
 
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="newUser"></param>
-        /// <returns></returns>
-        /// <response code="200">Request successfully processed</response>
-        /// <response code="400">Error in the request parameters</response>
-        [HttpPost("user")]
-        public ActionResult<IdentityUser> Post([FromBody] IdentityUser newUser)
-        {
-
-            try
-            {
-                using()
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }
-
 
     }
 }

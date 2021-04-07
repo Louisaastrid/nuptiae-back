@@ -29,7 +29,7 @@ namespace Identity.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddTransient<IIdentityRepo>(s => new IdentityRepo(Configuration.GetConnectionString("Identity")));
+            //services.AddTransient<IIdentityRepo>(s => new IdentityRepo(Configuration.GetConnectionString("Identity")));
 
             services.AddControllers();
             services.AddCors(options =>
