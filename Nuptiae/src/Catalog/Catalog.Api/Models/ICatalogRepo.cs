@@ -56,6 +56,6 @@ namespace Catalog.Api.Models
         /// <param name="newTravel">Travel information.</param>
         /// <returns>Travel identifier (<c>Null</c> if failure).</returns>
         /// <exception cref="System.ArgumentNullException"><paramref name="newTravel"/> is <c>Null</c>.</exception>
-        Task<int?> AddNewTravelAsync(CatalogTravel newTravel);
+        Task<int?> AddNewTravelAsync(CreateTravel newTravel);
     }
 }

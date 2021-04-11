@@ -10,10 +10,7 @@ namespace Catalog.Api.Models
     /// </summary>
     public class CreateTravel
     {
-        /// <summary>
-        /// Identifier.
-        /// </summary>
-        public int? Id { get; set; }
+ 
         /// <summary>
         /// Name.
         /// </summary>

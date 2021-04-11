@@ -25,6 +25,10 @@ namespace Catalog.Api.Models
         internal const string destinationsByPage = "destinationsByPage";
         internal const string destinationTravelByCountry = "destinationTravelByCountry";
         internal const string getCountryIdtravelTest = "getCountryIdtravelTest";
+        internal const string getTownId = "getTownId";
+        internal const string InsertTown = "InsertTown"; 
+        internal const string getCountryId = "getCountryId"; 
+        internal const string InsertNoces = "InsertNoces";
 
 
 
@@ -164,7 +168,7 @@ namespace Catalog.Api.Models
         }
 
         /// <inheritdoc />
-        public async Task<int?> AddNewTravelAsync(CatalogTravel newTravel)
+        public async Task<int?> AddNewTravelAsync(CreateTravel newTravel)
         {
             if (newTravel == null)
             {
@@ -175,73 +179,78 @@ namespace Catalog.Api.Models
             int? countryId = await GetCountryIdAsync(newTravel.Country).ConfigureAwait(false);
             if (!countryId.HasValue)
             {
-                countryId = await InsertCountryAsync(newTravel.Country).ConfigureAwait(false);
+                throw new ArgumentException(nameof(newTravel.Country));
             }
 
 
 
-            int? townId = await GetTownIdAsync(newTravel.Country).ConfigureAwait(false);
+            int? townId = await GetTownIdAsync(newTravel.Town ,countryId.Value ).ConfigureAwait(false);
             if (!townId.HasValue)
             {
-                townId = await InsertTownAsync(newTravel.Country).ConfigureAwait(false);
+                townId = await InsertTownAsync(newTravel.Town, countryId.Value).ConfigureAwait(false);
             }
 
             // TODO: pas certain à 100% d'avoir mis toutes les colonnes dans le INSERT
             using var db = _getDb();
             var results = await db
-                .QueryAsync<int>(@"
-                    INSERT INTO Noces
-                        (description_travel, nom, date_dep, prix, id_ville, id_pays)
-                    VALUES
-                        (@Description, @Name, @Departure, @Price, @Town, @Country);
-                    SELECT SCOPE_IDENTITY();",
+                .QueryAsync<int>(InsertNoces,
                     new
                     {
                         newTravel.Description,
                         newTravel.Name,
                         newTravel.Departure,
                         newTravel.Price,
-                        Town = townId,
-                        Country = countryId
-                    })
+                        Town = townId
+                    }, commandType: CommandType.StoredProcedure)
                 .ConfigureAwait(false);
 
             var id = results?.FirstOrDefault();
 
             if (id.HasValue)
             {
-                newTravel.Id = id;
-                _travelsCache?.Add(id.Value, newTravel);
+               
+                _travelsCache?.Add(id.Value, new CatalogTravel 
+                {
+                    Name = newTravel.Name,
+                    Departure = newTravel.Departure,
+                    Country = newTravel.Country,
+                    Price = newTravel.Price,
+                    Town = newTravel.Town,
+                    Id = id.Value  
+                });
             }
 
             return id;
         }
 
-        private Task<int?> InsertTownAsync(string country)
+        private async Task<int?> InsertTownAsync(string Name, int IdCountry, int ZipCode = 0)
         {
-            throw new NotImplementedException();
-        }
-
-        private Task<int?> InsertCountryAsync(string country)
-        {
-            throw new NotImplementedException();
+            using var db = _getDb();
+            return await db
+                .QueryFirstOrDefaultAsync<int?>(
+                    InsertTown,
+                    new { Name , ZipCode, IdCountry }, commandType: CommandType.StoredProcedure)
+                .ConfigureAwait(false);
         }
 
         private async Task<int?> GetCountryIdAsync(string country)
         {
-            // TODO: J'ai un peu la flemme mais tu vois l'idée :)
-            if (country == null)
-            {
-                throw new NotImplementedException();
-            }
-            return 2;
+            using var db = _getDb();
+            return await db
+                .QueryFirstOrDefaultAsync<int?>(
+                    getCountryId,
+                    new { country }, commandType: CommandType.StoredProcedure)
+                .ConfigureAwait(false);
         }
 
-        private async Task<int?> GetTownIdAsync(string town)
+        private async Task<int?> GetTownIdAsync(string Town , int countryid)
         {
-            // TODO: J'ai un peu la flemme mais tu vois l'idée :)
-            //throw new NotImplementedException();
-            return 2;
+            using var db = _getDb();
+            return await db
+                .QueryFirstOrDefaultAsync<int?>(
+                    getTownId,
+                    new { Town, countryid }, commandType: CommandType.StoredProcedure)
+                .ConfigureAwait(false);
         }
 
         private static void CheckPaginationParameters(int pageSize, int pageNum)

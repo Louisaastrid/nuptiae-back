@@ -216,7 +216,7 @@ namespace Catalog.API.Controllers
         [HttpPost("travels")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<IActionResult> InsertTravelAsync([FromBody] CatalogTravel newTravel)
+        public async Task<IActionResult> InsertTravelAsync([FromBody] CreateTravel newTravel)
         {
             if (newTravel == null)
             {
