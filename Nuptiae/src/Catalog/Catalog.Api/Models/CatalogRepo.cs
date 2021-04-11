@@ -18,7 +18,7 @@ namespace Catalog.Api.Models
         private Dictionary<int, CatalogTravel> _travelsCache = null;
         private readonly bool _useCache;
 
-        //CONSTANTES 
+        //CONSTANTES SQL 
         internal const string alldestinations = "allDestinationTravel";
         internal const string destinationByid = "destinationsNuptiaeById";
         internal const string searchCountry = "searchCountry";
