@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Catalog.Api.Models;
 using Catalog.API.Controllers;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +15,8 @@ namespace Nuptiae.Controller.Base.Test.Unit
         private readonly Mock<ICatalogRepo> _catalogRepoMock;
         private readonly Mock<ILogger<CatalogController>> _loggerCatalogMock;
         private readonly int idTravel = 8;
-        private readonly string search = "search";
+        private readonly int pageSize = 10;
+        private readonly int pageNum = 0;
         private readonly CatalogTravel travel = new CatalogTravel
         {
             Country = "France",
@@ -75,6 +77,18 @@ namespace Nuptiae.Controller.Base.Test.Unit
             Assert.IsType<ActionResult<CatalogTravel>>(result);
 
         }
+        [Fact]
+        public async void GetReturnsProductWithTermSearch()
+        {
+            //ARRANGE //ACT 
+            var result = await _catalogControllerMock.GetTravelBySearchAsync(It.IsAny<CatalogTravelSearch>(),pageNum,pageSize);
+
+            //ASSERT 
+
+            Assert.IsType<ActionResult<IReadOnlyCollection<CatalogTravel>>>(result);
+
+        }
+
 
         [Fact]
         public async void GetTravelById_ReturnsNotFound()
@@ -91,5 +105,7 @@ namespace Nuptiae.Controller.Base.Test.Unit
             //ASSERT 
             Assert.IsAssignableFrom<NotFoundResult>(result.Result);
         }
+
+
     }
 }
