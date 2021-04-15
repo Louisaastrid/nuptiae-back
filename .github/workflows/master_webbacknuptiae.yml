@@ -24,7 +24,7 @@ jobs:
         dotnet-version: '3.1.301'
 
     - name: Build with dotnet
-      run: dotnet build --configuration Release
+      run: docker push ${{ env.IMAGE }}:${{ env.GIT_SHA }}
 
     - name: dotnet publish
       run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
