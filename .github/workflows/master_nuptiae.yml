@@ -31,8 +31,7 @@ jobs:
       with:
         push: true
         tags: ${{ secrets.AzureAppService_ContainerUsername_f2229572031b41199fbbcbcda86690bb }}/nuptiae2d7f:${{ github.sha }}
-        file: ./Dockerfile
-
+        file: ./Nuptiae/src/Catalog/Catalog.Api/Dockerfile
   deploy:
     runs-on: ubuntu-latest
     needs: build
