@@ -6,3 +6,5 @@ services:
     build:
       context: .
       dockerfile: src/Catalog/Catalog.Api/Dockerfile
+    ports:
+     - 5001:80
