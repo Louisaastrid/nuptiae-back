@@ -42,9 +42,9 @@ namespace Catalog.Api
                     () => new SqlConnection(Configuration.GetConnectionString("Catalog")),
                     Configuration.GetValue<bool>("UseCache"))); // TODO: c'est une peu à l'arraché, je ne suis pas certain que ça fonctionne
             services.AddControllers();
-            //services.AddCors(options =>
-            //    options.AddDefaultPolicy(builder =>
-            //        builder.WithOrigins("http://localhost:3000")));
+            services.AddCors(options =>
+                options.AddDefaultPolicy(builder =>
+                    builder.WithOrigins("http://localhost:3000", "https://lemon-beach-0928eb403.azurestaticapps.net")));
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("V1", new OpenApiInfo
@@ -77,8 +77,8 @@ namespace Catalog.Api
                 })
                 .UseHttpsRedirection()
                 .UseRouting()
-                //.UseCors()
-                //.UseAuthorization()
+                .UseCors()
+                .UseAuthorization()
                 .UseEndpoints(endpoints =>
                 {
                     endpoints.MapControllers();

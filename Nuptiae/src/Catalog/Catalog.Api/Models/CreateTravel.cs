@@ -40,5 +40,10 @@ namespace Catalog.Api.Models
         /// Country.
         /// </summary>
         public string Country { get; set; }
+
+        /// <summary>
+        /// PictureImage
+        /// </summary>
+        public string Picture { get; set; }
     }
 }

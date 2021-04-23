@@ -111,7 +111,6 @@ namespace Catalog.Api.Models
                     .FirstOrDefault();
             }
 
-            // TODO: sans clause ORDER BY, tu n'as pas de garantie absolue que le résultat sera le même entre 2 exécutions
             using var db = _getDb();
             return await db
                 .QueryFirstOrDefaultAsync<CatalogTravel>(
@@ -174,7 +173,6 @@ namespace Catalog.Api.Models
             {
                 throw new ArgumentNullException(nameof(newTravel));
             }
-            // TODO: vérifier qu'un travel identique n'existe pas déjà ? (might be hard)
 
             int? countryId = await GetCountryIdAsync(newTravel.Country).ConfigureAwait(false);
             if (!countryId.HasValue)
@@ -190,7 +188,6 @@ namespace Catalog.Api.Models
                 townId = await InsertTownAsync(newTravel.Town, countryId.Value).ConfigureAwait(false);
             }
 
-            // TODO: pas certain à 100% d'avoir mis toutes les colonnes dans le INSERT
             using var db = _getDb();
             var results = await db
                 .QueryAsync<int>(InsertNoces,
@@ -200,7 +197,8 @@ namespace Catalog.Api.Models
                         newTravel.Name,
                         newTravel.Departure,
                         newTravel.Price,
-                        Town = townId
+                        Town = townId,
+                        newTravel.Picture
                     }, commandType: CommandType.StoredProcedure)
                 .ConfigureAwait(false);
 
@@ -216,7 +214,8 @@ namespace Catalog.Api.Models
                     Country = newTravel.Country,
                     Price = newTravel.Price,
                     Town = newTravel.Town,
-                    Id = id.Value  
+                    Id = id.Value ,
+                    Picture = newTravel.Picture
                 });
             }
 
