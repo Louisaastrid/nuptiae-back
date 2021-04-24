@@ -43,7 +43,7 @@ namespace Catalog.API.Controllers
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<IReadOnlyCollection<CatalogTravel>>> GetAsync([FromQuery] int pageNum = 0, [FromQuery] int pageSize = 10)
+        public async Task<ActionResult<IReadOnlyCollection<CatalogTravel>>> GetAsync([FromQuery] int pageNum = 1, [FromQuery] int pageSize = 10)
         {
             try
             {
@@ -183,7 +183,7 @@ namespace Catalog.API.Controllers
         [HttpPost("travels/search")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<IReadOnlyCollection<CatalogTravel>>> GetTravelBySearchAsync([FromBody] CatalogTravelSearch search, [FromQuery] int pageNum = 0, [FromQuery] int pageSize = 10)
+        public async Task<ActionResult<IReadOnlyCollection<CatalogTravel>>> GetTravelBySearchAsync([FromBody] CatalogTravelSearch search, [FromQuery] int pageNum = 1, [FromQuery] int pageSize = 10)
         {
             // TODO: ok là j'avoue sur cette méthode j'ai changé le paradigme...
 
