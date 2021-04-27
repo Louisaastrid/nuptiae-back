@@ -96,7 +96,7 @@ namespace Nuptiae.Controller.Base.Test.Unit
             //ARRANGE 
             CatalogTravel expected = null;
             _catalogRepoMock
-                .Setup(x => x.GetTravelByIdAsync(It.IsAny<int>()))
+                .Setup(x => x.GetTravelByIdAsync(It.IsIn<int>(idTravel)))
                 .ReturnsAsync(expected);
 
             //ACT 

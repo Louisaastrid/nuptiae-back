@@ -40,7 +40,7 @@ namespace Catalog.Api
             services.AddSingleton<ICatalogRepo>(s =>
                 new CatalogRepo(
                     () => new SqlConnection(Configuration.GetConnectionString("Catalog")),
-                    Configuration.GetValue<bool>("UseCache"))); // TODO: c'est une peu à l'arraché, je ne suis pas certain que ça fonctionne
+                    Configuration.GetValue<bool>("UseCache")));
             services.AddControllers();
             services.AddCors(options =>
                 options.AddDefaultPolicy(builder =>
